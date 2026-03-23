@@ -6,12 +6,16 @@ import subprocess
 import time
 import threading
 import asyncio
+import math
 
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import PathJoinSubstitution
+from rclpy.executors import MultiThreadedExecutor
+
+from scipy.spatial.transform import Rotation as R
 
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseStamped, TwistStamped
@@ -106,22 +110,57 @@ class TestSpeedControl: # try basic commands such as publishing to /cmd_vel
         assert received.is_set(), "No message received on /cmd_vel"
         rclpy_init.destroy_subscription(sub)
 
-class TestDrivetoPoint: # try driving to a pose
-    def test_go_to(self, rclpy_init):
-        node = Controller(0, 0, 0)
-        target_x, target_y = 2.0, 1.5
-        position = {'x': None, 'y': None}
+class TestBasicMovement: # try driving to a pose
+    @pytest.mark.launch(fixture=generate_test_description)
+    def test_drive(self, rclpy_init):
+        '''confirms the robot can move in a straight line'''
 
+        node = Controller(0, 0, 0)
+        executor = MultiThreadedExecutor()
+        executor.add_node(node)
+        exec_thread = threading.Thread(target=executor.spin, daemon=True)
+        exec_thread.start()
+        time.sleep(1) 
+
+        position = {'x': None, 'y': None}
         def odom_callback(msg: Odometry):
             position['x'] = msg.pose.pose.position.x
             position['y'] = msg.pose.pose.position.y
-        
+
         odom_sub = rclpy_init.create_subscription(Odometry, '/odom', odom_callback, 10)
 
-        target_pose = PoseStamped()
-        target_pose.pose.position.x = target_x
-        target_pose.pose.position.y = target_y
+        timeout = 5
+        start_time = time.time()
 
-        node.go_to(target_pose)
+        while (position['x'] is None or position['y'] is None) and (time.time() - start_time < timeout):
+            rclpy.spin_once(rclpy_init, timeout_sec=0.1)
+
+        assert position['x'] is not None and position['y'] is not None, "no odom msg before drive"
+
+        start_pos = (position['x'], position['y'])
+
+        # drive thread
+        drive_thread = threading.Thread(target=node.drive, args=(2.0, 0.2))
+        drive_thread.start()
+        drive_thread.join(timeout=10) 
+
+        time.sleep(1)
+        rclpy.spin_once(rclpy_init, timeout_sec=0.1)
+        end_pos = (position['x'], position['y'])
+
+        # node/process cleanup
+        rclpy_init.destroy_subscription(odom_sub)
+        node.destroy_node()
+        executor.shutdown()
+        exec_thread.join(timeout=2)
+
+        # assert for drive distance + debug (-s flag for prints to appear)
+        dist = math.hypot(end_pos[0] - start_pos[0], end_pos[1] - start_pos[1])
+        print(f"Start: {start_pos}, End: {end_pos}, Distance moved: {dist:.2f}")
+        assert dist > 1.8, f"Incorrect drive distance {dist:.2f}m"
+
+    @pytest.mark.launch(fixture=generate_test_description)
+    def test_rotate(self, rclpy_init): pass
+
 
 
