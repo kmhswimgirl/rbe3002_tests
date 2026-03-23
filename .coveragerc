@@ -1,0 +1,6 @@
+[run]
+omit =
+    */site-packages/*
+    */dist-packages/*
+    */control/src/control/action_controller.py
+    */control/src/control/__init__.py

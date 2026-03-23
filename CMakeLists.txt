@@ -12,8 +12,10 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(ament_cmake_pytest REQUIRED)
 
+# find rbe 3002 packages
 find_package(control REQUIRED)
 
+# 
 install(DIRECTORY
   test
   DESTINATION share/${PROJECT_NAME}/
