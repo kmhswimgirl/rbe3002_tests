@@ -110,7 +110,7 @@ class TestSpeedControl: # try basic commands such as publishing to /cmd_vel
         assert received.is_set(), "No message received on /cmd_vel"
         rclpy_init.destroy_subscription(sub)
 
-class TestBasicMovement: # try driving to a pose
+class TestBasicMovement: # tests for drive and rotate functions
     @classmethod
     def setup_class(cls):
         rclpy.init()
@@ -162,6 +162,7 @@ class TestBasicMovement: # try driving to a pose
 
         assert dist > 1.9, f"Incorrect drive distance {dist:.2f}m"
     
+    @pytest.mark.launch(fixture=generate_test_description)
     def test_rotate_case_1(self, rclpy_init):
         '''testing normalizing the turn angle (part 1)'''
 
@@ -195,9 +196,9 @@ class TestBasicMovement: # try driving to a pose
         dist = abs(start_angle - end_angle)
         print(f"rotated {dist:.2f} radians")
 
-        assert 3.10 > dist > 3.01, f"did not rotate within tolerance, rotated {dist:.2f} radians"
+        assert math.isclose(dist, 3.03, abs_tol=0.1), f"did not rotate within tolerance, rotated {dist:.2f} radians"
 
-    
+    @pytest.mark.launch(fixture=generate_test_description)
     def test_rotate_case_2(self, rclpy_init):
         '''testing normalizing the turn angle (part 2)'''
 
@@ -231,8 +232,63 @@ class TestBasicMovement: # try driving to a pose
         dist = abs(start_angle) + abs(end_angle)
         print(f"rotated {dist:.2f} radians")
 
-        assert 6.10 > dist > 6.0, f"did not rotate within tolerance, rotated {dist:.2f} radians"
+        assert math.isclose(dist, 6.05, abs_tol=0.1), f"did not rotate within tolerance, rotated {dist:.2f} radians"
 
+class TestDriveToPoint:
+    @classmethod
+    def setup_class(cls):
+        rclpy.init()
+        cls.node = Controller(0, 0, 0)
+        cls.executor = MultiThreadedExecutor()
+        cls.executor.add_node(cls.node)
+        cls.exec_thread = threading.Thread(target=cls.executor.spin, daemon=True)
+        cls.exec_thread.start()
+        time.sleep(1) 
 
+    @classmethod
+    def teardown_class(cls):
+        cls.node.destroy_node()
+        cls.executor.shutdown()
+        cls.exec_thread.join(timeout=2)
+        # rclpy.shutdown()
 
+    @pytest.mark.launch(fixture=generate_test_description)
+    def test_go_to(self, rclpy_init):
+        position = {'x': None, 'y': None, 'th': None}
+
+        def odom_callback(msg: Odometry):
+            position['x'] = msg.pose.pose.position.x
+            position['y'] = msg.pose.pose.position.y
+            
+            quat = msg.pose.pose.orientation
+            rotation = R.from_quat([quat.x, quat.y, quat.z, quat.w])
+            euler = rotation.as_euler('xyz')
+            position['th'] = euler[2] 
+
+        odom_sub = rclpy_init.create_subscription(Odometry, '/odom', odom_callback, 10)
+
+        timeout = 5
+        start_time = time.time()
+        while position['th'] is None and (time.time() - start_time < timeout):
+            rclpy.spin_once(rclpy_init, timeout_sec=0.1)
+        assert position['th'] is not None, "no odom msg before go_to()"
+
+        goal_pose = PoseStamped()
+        goal_pose.header.frame_id = 'odom'
+        goal_pose.pose.position.x = 1.0
+        goal_pose.pose.position.y = -0.5
+
+        pose_thread = threading.Thread(target=self.node.go_to, args=(goal_pose,))
+        pose_thread.start()
+        pose_thread.join(timeout=40)
+
+        time.sleep(1)
+        rclpy.spin_once(rclpy_init, timeout_sec=0.1)
+        end_position = position
+
+        rclpy_init.destroy_subscription(odom_sub)
+        print(f'final position: ({end_position['x']}, {end_position['y']})')
+
+        assert math.isclose(end_position['x'], goal_pose.pose.position.x, abs_tol=0.1), f'x coordinate out of bounds (returned {end_position['x']})'
+        assert math.isclose(end_position['y'], goal_pose.pose.position.y, abs_tol=0.1), f'y coordinate out of bounds (returned {end_position['y']})'
 
