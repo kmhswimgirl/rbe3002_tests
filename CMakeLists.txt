@@ -14,6 +14,7 @@ find_package(ament_cmake_pytest REQUIRED)
 
 # find rbe 3002 packages
 find_package(control REQUIRED)
+find_package(pathing REQUIRED)
 
 # 
 install(DIRECTORY
