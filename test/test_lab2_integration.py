@@ -111,16 +111,26 @@ class TestSpeedControl: # try basic commands such as publishing to /cmd_vel
         rclpy_init.destroy_subscription(sub)
 
 class TestBasicMovement: # try driving to a pose
+    @classmethod
+    def setup_class(cls):
+        rclpy.init()
+        cls.node = Controller(0, 0, 0)
+        cls.executor = MultiThreadedExecutor()
+        cls.executor.add_node(cls.node)
+        cls.exec_thread = threading.Thread(target=cls.executor.spin, daemon=True)
+        cls.exec_thread.start()
+        time.sleep(1) 
+
+    @classmethod
+    def teardown_class(cls):
+        cls.node.destroy_node()
+        cls.executor.shutdown()
+        cls.exec_thread.join(timeout=2)
+        # rclpy.shutdown()
+
     @pytest.mark.launch(fixture=generate_test_description)
     def test_drive(self, rclpy_init):
         '''confirms the robot can move in a straight line'''
-
-        node = Controller(0, 0, 0)
-        executor = MultiThreadedExecutor()
-        executor.add_node(node)
-        exec_thread = threading.Thread(target=executor.spin, daemon=True)
-        exec_thread.start()
-        time.sleep(1) 
 
         position = {'x': None, 'y': None}
         def odom_callback(msg: Odometry):
@@ -131,36 +141,98 @@ class TestBasicMovement: # try driving to a pose
 
         timeout = 5
         start_time = time.time()
-
         while (position['x'] is None or position['y'] is None) and (time.time() - start_time < timeout):
             rclpy.spin_once(rclpy_init, timeout_sec=0.1)
-
-        assert position['x'] is not None and position['y'] is not None, "no odom msg before drive"
+        assert position['x'] is not None and position['y'] is not None, "no odom msg before drive()"
 
         start_pos = (position['x'], position['y'])
 
-        # drive thread
-        drive_thread = threading.Thread(target=node.drive, args=(2.0, 0.2))
+        drive_thread = threading.Thread(target=self.node.drive, args=(2.0, 0.2))
         drive_thread.start()
-        drive_thread.join(timeout=10) 
+        drive_thread.join(timeout=10)
 
         time.sleep(1)
         rclpy.spin_once(rclpy_init, timeout_sec=0.1)
         end_pos = (position['x'], position['y'])
 
-        # node/process cleanup
         rclpy_init.destroy_subscription(odom_sub)
-        node.destroy_node()
-        executor.shutdown()
-        exec_thread.join(timeout=2)
 
-        # assert for drive distance + debug (-s flag for prints to appear)
         dist = math.hypot(end_pos[0] - start_pos[0], end_pos[1] - start_pos[1])
         print(f"Start: {start_pos}, End: {end_pos}, Distance moved: {dist:.2f}")
-        assert dist > 1.8, f"Incorrect drive distance {dist:.2f}m"
 
-    @pytest.mark.launch(fixture=generate_test_description)
-    def test_rotate(self, rclpy_init): pass
+        assert dist > 1.9, f"Incorrect drive distance {dist:.2f}m"
+    
+    def test_rotate_case_1(self, rclpy_init):
+        '''testing normalizing the turn angle (part 1)'''
+
+        angle = {'yaw': None} # not sure why tf using a dictionary works for this 
+
+        def odom_callback(msg:Odometry):
+            quat = msg.pose.pose.orientation
+            rotation = R.from_quat([quat.x, quat.y, quat.z, quat.w])
+            euler = rotation.as_euler('xyz')
+            angle['yaw'] = euler[2] 
+        
+        odom_sub = rclpy_init.create_subscription(Odometry, '/odom', odom_callback, 10)
+
+        timeout = 5
+        start_time = time.time()
+        while angle['yaw'] is None and (time.time() - start_time < timeout):
+            rclpy.spin_once(rclpy_init, timeout_sec=0.1)
+        assert angle['yaw'] is not None, "no odom msg before rotate()"
+
+        start_angle = angle['yaw']
+
+        turn_thread = threading.Thread(target=self.node.rotate, args=(math.pi + 0.1, 0.3))
+        turn_thread.start()
+        turn_thread.join(timeout=20)
+
+        time.sleep(1)
+        rclpy.spin_once(rclpy_init, timeout_sec=0.1)
+        end_angle = angle['yaw']
+
+        rclpy_init.destroy_subscription(odom_sub)
+        dist = abs(start_angle - end_angle)
+        print(f"rotated {dist:.2f} radians")
+
+        assert 3.10 > dist > 3.01, f"did not rotate within tolerance, rotated {dist:.2f} radians"
+
+    
+    def test_rotate_case_2(self, rclpy_init):
+        '''testing normalizing the turn angle (part 2)'''
+
+        angle = {'yaw': None} # not sure why tf using a dictionary works for this 
+
+        def odom_callback(msg:Odometry):
+            quat = msg.pose.pose.orientation
+            rotation = R.from_quat([quat.x, quat.y, quat.z, quat.w])
+            euler = rotation.as_euler('xyz')
+            angle['yaw'] = euler[2] 
+        
+        odom_sub = rclpy_init.create_subscription(Odometry, '/odom', odom_callback, 10)
+
+        timeout = 5
+        start_time = time.time()
+        while angle['yaw'] is None and (time.time() - start_time < timeout):
+            rclpy.spin_once(rclpy_init, timeout_sec=0.1)
+        assert angle['yaw'] is not None, "no odom msg before rotate()"
+
+        start_angle = angle['yaw']
+
+        turn_thread = threading.Thread(target=self.node.rotate, args=(-math.pi - 0.1, 0.3))
+        turn_thread.start()
+        turn_thread.join(timeout=20)
+
+        time.sleep(1)
+        rclpy.spin_once(rclpy_init, timeout_sec=0.1)
+        end_angle = angle['yaw']
+
+        rclpy_init.destroy_subscription(odom_sub)
+        dist = abs(start_angle) + abs(end_angle)
+        print(f"rotated {dist:.2f} radians")
+
+        assert 6.10 > dist > 6.0, f"did not rotate within tolerance, rotated {dist:.2f} radians"
+
 
 
 
