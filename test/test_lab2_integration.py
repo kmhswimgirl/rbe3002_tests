@@ -21,6 +21,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseStamped, TwistStamped
 
 from control.tf_controller import Controller
+from control.path_generator import PathGenerator
 
 @launch_pytest.fixture(scope="class")
 def generate_test_description():
@@ -250,7 +251,6 @@ class TestDriveToPoint:
         cls.node.destroy_node()
         cls.executor.shutdown()
         cls.exec_thread.join(timeout=2)
-        # rclpy.shutdown()
 
     @pytest.mark.launch(fixture=generate_test_description)
     def test_go_to(self, rclpy_init):
@@ -291,4 +291,32 @@ class TestDriveToPoint:
 
         assert math.isclose(end_position['x'], goal_pose.pose.position.x, abs_tol=0.1), f'x coordinate out of bounds (returned {end_position['x']})'
         assert math.isclose(end_position['y'], goal_pose.pose.position.y, abs_tol=0.1), f'y coordinate out of bounds (returned {end_position['y']})'
+
+class TestPathFollowing:
+    @classmethod
+    def setup_class(cls):
+        rclpy.init()
+        cls.node = Controller(0, 0, 0)
+        cls.executor = MultiThreadedExecutor()
+        cls.executor.add_node(cls.node)
+        cls.exec_thread = threading.Thread(target=cls.executor.spin, daemon=True)
+        cls.exec_thread.start()
+        time.sleep(1) 
+
+    @classmethod
+    def teardown_class(cls):
+        cls.node.destroy_node()
+        cls.executor.shutdown()
+        cls.exec_thread.join(timeout=2)
+    
+    @pytest.mark.launch(fixture=generate_test_description)
+    def test_path_following(self, rclpy_init):
+
+        path_node = PathGenerator(0, 0, 0, 'odom')
+        
+
+
+
+
+
 
