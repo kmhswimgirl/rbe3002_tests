@@ -1,0 +1,31 @@
+canvas:
+  instance_url: "canvas.wpi.edu"
+  course_id: 11123
+  gh_user_quiz: 0000
+  late_penalty: 0.10 # percent per day late
+
+# for each lab under individual and group, the key is the file name without "test_". 
+lab2:
+  individual: # points, canvas id
+    launch_file: {10, 0000}
+    drive: {20, 0000}
+    rotate: {20, 0000}
+    go_to: {20, 0000}
+    pull_request: {10, 0000}
+  group:
+    follow_path: {30, 0000}
+
+lab3:
+  individual: # points, canvas id
+    c_space: {10, 0000}
+    clicked_point: {20, 0000}
+  group:
+    a_star: {30, 0000}
+    robot_a_star: {30, 0000}
+
+lab4:
+  group: # points, canvas id
+    pdr: {}
+    phase_1: {}
+    phase_3: {}
+

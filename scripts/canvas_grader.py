@@ -1,7 +1,6 @@
-import canvasapi as canvas
+import canvasapi as lms
+import yaml
 
-# api key (get from GH secret)
-CANVAS_URL = "canvas.wpi.edu"
+# define course page ID (from config file???)
 
-CLASS_ID = 
-ASSIGNEMNT_ID = 
+# get username from 
