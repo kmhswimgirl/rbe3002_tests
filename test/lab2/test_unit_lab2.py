@@ -25,7 +25,7 @@ def test_update_odometry(rclpy_init):
     odom_msg.pose.pose.position.x = 1.5
     odom_msg.pose.pose.position.y = 2.5
     rotation = R.from_euler('xyz', [0, 0, 0.785])
-    quat= rotation.as_quat()
+    quat = rotation.as_quat()
     odom_msg.pose.pose.orientation.x = quat[0]
     odom_msg.pose.pose.orientation.y = quat[1]
     odom_msg.pose.pose.orientation.z = quat[2]
