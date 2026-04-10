@@ -1,0 +1,35 @@
+name: Lab2 CI
+
+on:
+ workflow_dispatch:
+  # push:
+  #   branches: 
+  #      - '*lab2*'
+  # pull_request:
+  #   branches: 
+  #     - '*lab2*' 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: kmhswimgirl/rbe3002-autograder:test
+
+    steps:
+      - name: Checkout my 3002 repository into ROS workspace
+        uses: actions/checkout@v4
+        with:
+          repository: kmhswimgirl/RBE3002_ros2
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: 32-clean-up
+          path: ~/ros2_ws/src
+      - name: Build ROS workspace
+        run: |
+          cd ~/ros2_ws
+          colcon build --symlink-install
+          source install/setup.bash
+      - name: run lab2 individual tests
+        run:  |
+          pytest ~ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -v
+          
+          
