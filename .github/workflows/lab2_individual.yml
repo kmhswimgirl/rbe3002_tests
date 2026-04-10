@@ -26,4 +26,4 @@ jobs:
       - name: Run lab2 individual tests
         shell: bash
         run: |
-          pytest /root/ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -v 
+          pytest test/lab2/test_drive.py -v 
