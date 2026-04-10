@@ -23,10 +23,10 @@ jobs:
           colcon build --symlink-install --packages-ignore rbe3002_interfaces
           source /root/ros2_ws/install/setup.bash
           
-      - name: see file tree
+      - name: see entire file tree
         shell: bash
         run: |
-          tree -L 2 /
+          tree /
 
       - name: Run lab2 individual tests
         shell: bash
