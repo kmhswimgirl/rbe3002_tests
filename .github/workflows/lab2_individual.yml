@@ -16,16 +16,21 @@ jobs:
       image: kmhswimgirl/rbe3002-autograder:test
 
     steps:
-     - name: Clone repo using git to absolute path
+     - name: what directories do i have?
        run: |
-        git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kmhswimgirl/RBE3002_ros2.git -b 32-clean-up /home/runner/ros2_ws/src
-     - name: Build ROS workspace
-       run: |
-          cd ~/ros2_ws
-          colcon build --symlink-install
-          source install/setup.bash
-     - name: run lab2 individual tests
-       run:  |
-          pytest ~ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -v
+        echo "ls -a"
+      
+     
+    #  - name: Clone repo using git to absolute path
+    #    run: |
+    #     git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kmhswimgirl/RBE3002_ros2.git -b 32-clean-up /home/runner/ros2_ws/src
+    #  - name: Build ROS workspace
+    #    run: |
+    #       cd ~/ros2_ws
+    #       colcon build --symlink-install
+    #       source install/setup.bash
+    #  - name: run lab2 individual tests
+    #    run:  |
+    #       pytest ~ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -v
           
           
