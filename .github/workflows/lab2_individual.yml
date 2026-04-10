@@ -1,13 +1,7 @@
 name: Lab2 CI
 
 on:
- workflow_dispatch:
-  # push:
-  #   branches: 
-  #      - '*lab2*'
-  # pull_request:
-  #   branches: 
-  #     - '*lab2*' 
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,21 +10,16 @@ jobs:
       image: kmhswimgirl/rbe3002-autograder:test
 
     steps:
-     - name: what directories do i have?
-       run: |
-        ls -a
-      
-     
-    #  - name: Clone repo using git to absolute path
-    #    run: |
-    #     git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kmhswimgirl/RBE3002_ros2.git -b 32-clean-up /home/runner/ros2_ws/src
-    #  - name: Build ROS workspace
-    #    run: |
-    #       cd ~/ros2_ws
-    #       colcon build --symlink-install
-    #       source install/setup.bash
-    #  - name: run lab2 individual tests
-    #    run:  |
-    #       pytest ~ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -v
-          
-          
+      - name: Clone repo into src directory inside container
+        run: |
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kmhswimgirl/RBE3002_ros2.git /root/ros2_ws/src -b 32-clean-up
+
+      - name: Build ROS workspace
+        run: |
+          cd /root/ros2_ws
+          colcon build --symlink-install
+          source /root/ros2_ws/install/setup.bash
+
+      - name: Run lab2 individual tests
+        run: |
+          pytest /root/ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -v 
