@@ -16,6 +16,7 @@ jobs:
 
       - name: Build ROS workspace
         run: |
+          source /opt/ros/jazzy/setup.bash
           cd /root/ros2_ws
           colcon build --symlink-install --packages-ignore rbe3002_interfaces
           source /root/ros2_ws/install/setup.bash
