@@ -30,4 +30,4 @@ jobs:
       - name: Run lab2 individual tests
         shell: bash
         run: |
-          pytest ${{github.workspace}}ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -v 
+          pytest ${{github.workspace}}/ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -v 
