@@ -26,7 +26,7 @@ jobs:
       - name: see entire file tree
         shell: bash
         run: |
-          tree /
+          tree -L 4 /
 
       - name: Run lab2 individual tests
         shell: bash
