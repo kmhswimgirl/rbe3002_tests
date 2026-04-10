@@ -17,7 +17,7 @@ jobs:
       - name: Build ROS workspace
         run: |
           cd /root/ros2_ws
-          colcon build --symlink-install
+          colcon build --symlink-install --packages-ignore rbe3002_interfaces
           source /root/ros2_ws/install/setup.bash
 
       - name: Run lab2 individual tests
