@@ -10,26 +10,25 @@ jobs:
       image: kmhswimgirl/rbe3002-autograder:test
 
     steps:
+      - name: Checkout repo to ros2_ws
+        uses: actions/checkout@v4
+        with:
+          path: ros2_ws/src
+          
       - name: Clone repo into src directory inside container
         shell: bash
         run: |
-          git clone https://x-access-token:${{ secrets.RBE3002_ros2_KEY }}@github.com/kmhswimgirl/RBE3002_ros2.git /root/ros2_ws/src -b 32-clean-up
+          git clone https://x-access-token:${{ secrets.RBE3002_ros2_KEY }}@github.com/kmhswimgirl/RBE3002_ros2.git ${{ github.workspace }}/ros2_ws/src -b 32-clean-up
 
       - name: Build ROS workspace
         shell: bash
         run: |
           source /opt/ros/jazzy/setup.bash
-          cd /root/ros2_ws
+          cd ${{ github.workspace }}/ros2_ws
           colcon build --symlink-install --packages-ignore rbe3002_interfaces
-          source /root/ros2_ws/install/setup.bash
-          
-      - name: see entire file tree
-        shell: bash
-        run: |
-          tree -L 4 /
 
       - name: Run lab2 individual tests
         shell: bash
         run: |
-          ls -l /root/ros2_ws/src/rbe3002_tests/test/lab2/
-          pytest test/lab2/test_drive.py -v 
+          ls -l ros2_ws/src/rbe3002_tests/test/lab2/
+          pytest ${{github.workspace}}ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -v 
