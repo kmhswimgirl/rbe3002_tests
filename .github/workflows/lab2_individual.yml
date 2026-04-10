@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Clone repo into src directory inside container
         run: |
-          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kmhswimgirl/RBE3002_ros2.git /root/ros2_ws/src -b 32-clean-up
+          git clone https://x-access-token:${{ secrets.RBE3002_ros2_KEY }}@github.com/kmhswimgirl/RBE3002_ros2.git /root/ros2_ws/src -b 32-clean-up
 
       - name: Build ROS workspace
         run: |
