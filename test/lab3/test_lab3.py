@@ -2,20 +2,17 @@ import pytest
 import rclpy
 from nav_msgs.msg import OccupancyGrid
 
-from pathing.path_planner import PathPlanner #type:ignore
+from occupancy_grids import map1, map2, map3
+
+from pathing.path_planner import PathPlanner
 
 @pytest.fixture(scope="session", autouse=True)
 def rclpy_init():
     '''init ROS python client library'''
     rclpy.init()
-    # map = OccupancyGrid()
+    map = map2
     yield
     rclpy.shutdown()
-
-def test_grid_to_index(): 
-    '''multiple tests for converting grid coordinates to array index'''
-    
-    pass
 
 def test_euclidean_distance(): 
     '''confirming euclidean_distance() works'''
@@ -27,10 +24,6 @@ def test_grid_to_world():
 
 def test_world_to_grid():
     '''the inverse of the previous function'''
-    pass
-
-def test_is_cell_walkable():
-    '''is the gridcell in the map walkable?'''
     pass
 
 def test_neighbors_of_4():

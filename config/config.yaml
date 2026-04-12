@@ -1,8 +1,12 @@
 canvas:
-  instance_url: "canvas.wpi.edu"
-  course_id: 11123
-  gh_user_quiz: 0000
+  instance_url: "https://canvas.wpi.edu"
+  course_id: 82627
+  gh_user_quiz: 469828
   late_penalty: 0.10 # percent per day late
+
+rbe_3002:
+  course_id: 82620
+  gh_user_quiz: 95369
 
 # for each lab under individual and group, the key is the file name without "test_". 
 lab2:

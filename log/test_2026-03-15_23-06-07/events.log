@@ -1,6 +1,0 @@
-[0.000000] (-) TimerEvent: {}
-[0.000118] (rbe3002_tests) JobQueued: {'identifier': 'rbe3002_tests', 'dependencies': OrderedDict({'rbe3002_tests': '/home/kymadogg/ros2_ws/src/rbe3002_tests/install/rbe3002_tests'})}
-[0.000147] (rbe3002_tests) JobStarted: {'identifier': 'rbe3002_tests'}
-[0.002580] (rbe3002_tests) StderrLine: {'line': b'Traceback (most recent call last):\n  File "/usr/lib/python3/dist-packages/colcon_core/executor/__init__.py", line 91, in __call__\n    rc = await self.task(*args, **kwargs)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/usr/lib/python3/dist-packages/colcon_core/task/__init__.py", line 93, in __call__\n    return await task_method(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/usr/lib/python3/dist-packages/colcon_ros/task/ament_cmake/test.py", line 29, in test\n    return await extension.test()\n           ^^^^^^^^^^^^^^^^^^^^^^\n  File "/usr/lib/python3/dist-packages/colcon_cmake/task/cmake/test.py", line 44, in test\n    assert os.path.exists(args.build_base), \\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Has this package been built before?\n'}
-[0.002867] (rbe3002_tests) JobEnded: {'identifier': 'rbe3002_tests', 'rc': 1}
-[0.012866] (-) EventReactorShutdown: {}
