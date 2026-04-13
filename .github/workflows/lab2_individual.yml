@@ -17,7 +17,7 @@ jobs:
       - name: turtlebot repo clone
         shell: bash
         run: |
-          git clone https://github.ccom/kmhswimgirl/turtlebot3_simulations.git /ros2_ws/src -b pose-publisher
+          git clone https://github.com/kmhswimgirl/turtlebot3_simulations.git /ros2_ws/src -b pose-publisher
       - name: Clone repo into src directory inside container
         shell: bash
         run: |
