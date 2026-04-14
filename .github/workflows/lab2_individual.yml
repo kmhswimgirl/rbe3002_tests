@@ -10,24 +10,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: kmhswimgirl/rbe3002-autograder:test
+      image: kmhswimgirl/rbe3002-autograder:latest
 
     steps:
-      - name: Install killall cmd line tool
-        run: sudo apt-get update && sudo apt-get install -y psmisc # later willgo in docker container image
-
-      - name: TESTS!!!!
+      - name: Clone test repository
         shell: bash
         run: |
           git clone https://github.com/kmhswimgirl/rbe3002_tests.git ${{ github.workspace }}/ros2_ws/src/rbe3002_tests
 
-      - name: turtlebot simulaitons repo clone
+      - name: Clone TurtleBot3 simulations fork
         shell: bash
         run: |
           git clone https://github.com/kmhswimgirl/turtlebot3_simulations.git ${{ github.workspace }}/ros2_ws/src/turtlebot3_simulations -b pose-publisher
 
       
-      - name: turtlebot3 base packages
+      - name: TurtleBot3 base packages
         shell: bash
         run: |
           git clone https://github.com/ROBOTIS-GIT/turtlebot3.git ${{ github.workspace }}/ros2_ws/src/turtlebot3 -b jazzy
@@ -37,7 +34,7 @@ jobs:
       #   run: |
       #     git clone https://x-access-token:${{ secrets.RBE3002_ros2_KEY }}@github.com/kmhswimgirl/RBE3002_ros2.git ${{ github.workspace }}/ros2_ws/src/RBE3002_ros2 -b 32-clean-up
 
-      - name: 3002 repo clone
+      - name: Clone repo with 3002 code
         shell: bash
         run: |
           git clone https://github.com/kmhswimgirl/RBE3002_ros2.git ${{ github.workspace }}/ros2_ws/src/RBE3002_ros2 -b 32-clean-up
@@ -55,5 +52,6 @@ jobs:
           source /opt/ros/jazzy/setup.bash
           export TURTLEBOT3_MODEL=burger
           source ${{ github.workspace }}/ros2_ws/install/setup.bash
-          pytest --junitxml=results.xml --cov=control --cov-report=term-missing ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/test/lab2 -vv -s 
+          pytest --junitxml=results.xml ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/test/lab2 -vv -s 
+          cat results.xml
       
