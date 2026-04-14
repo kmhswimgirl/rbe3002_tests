@@ -13,10 +13,13 @@
   <depend>std_msgs</depend>
   <depend>rclcpp</depend>
   <depend>control</depend>
+  <depend>pathing</depend>
 
   <exec_depend>pytest</exec_depend>
 
   <test_depend>control</test_depend> 
+  <test_depend>pathing</test_depend>
+
   <test_depend>rclpy</test_depend>
   <test_depend>ament_cmake_ros</test_depend>
   <test_depend>launch</test_depend>

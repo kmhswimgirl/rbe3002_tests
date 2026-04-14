@@ -53,6 +53,9 @@ CATKIN_IGNORE
 # other things
 /.pytest_cache
 /.vscode
-/install
-/log
+*/install
+*/log
 */__pycache__
+.venv/*
+results/
+
