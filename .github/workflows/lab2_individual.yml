@@ -48,6 +48,8 @@ jobs:
           ls -a
           cd src
           ls -a
+          cd rbe3002_tests
+          ls -a
 
 
       - name: Run lab2 individual tests
