@@ -13,7 +13,10 @@ jobs:
       - name: Checkout repo to ros2_ws
         uses: actions/checkout@v4
         with:
-          path: ros2_ws/src/rbe3002_tests
+          path: ros2_ws/src
+        shell: bash
+        run: pwd
+
       - name: turtlebot repo clone
         shell: bash
         run: |
@@ -41,4 +44,4 @@ jobs:
         run: |
           source /opt/ros/jazzy/setup.bash
           source ${{ github.workspace }}/ros2_ws/install/setup.bash
-          pytest ${{github.workspace}}/ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -v 
+          pytest ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -vv -s 
