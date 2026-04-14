@@ -10,10 +10,11 @@ jobs:
       image: kmhswimgirl/rbe3002-autograder:test
 
     steps:
-      - name: Checkout repo to ros2_ws
-        uses: actions/checkout@v4
-        with:
-          path: ros2_ws/src
+
+      - name: TESTS!!!!
+        shell: bash
+        run: |
+          git clone https://github.com/kmhswimgirl/rbe3002_tests.git ${{ github.workspace }}/ros2_ws/src/rbe3002_tests
 
       - name: turtlebot repo clone
         shell: bash
@@ -36,7 +37,7 @@ jobs:
           source /opt/ros/jazzy/setup.bash
           cd ${{ github.workspace }}/ros2_ws
           colcon build --symlink-install --packages-ignore rbe3002_interfaces
-          
+
       - name: find test files
         shell: bash
         run: |
