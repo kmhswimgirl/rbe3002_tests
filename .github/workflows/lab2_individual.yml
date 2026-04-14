@@ -23,7 +23,6 @@ jobs:
         run: |
           git clone https://github.com/kmhswimgirl/turtlebot3_simulations.git ${{ github.workspace }}/ros2_ws/src/turtlebot3_simulations -b pose-publisher
 
-      
       - name: TurtleBot3 base packages
         shell: bash
         run: |
@@ -48,10 +47,18 @@ jobs:
 
       - name: Run lab2 individual tests
         shell: bash
-        run: |
+        run: | # minimal logging
           source /opt/ros/jazzy/setup.bash
           export TURTLEBOT3_MODEL=burger
-          source ${{ github.workspace }}/ros2_ws/install/setup.bash
-          pytest --junitxml=results.xml ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/test/lab2 -vv -s 
+          source ${{ github.workspace }}/ros2_ws/install/setup.bash 
+          pytest --junitxml=results.xml ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/test/lab2 -v  
           cat results.xml
+          
+      - name: Format & Parse XML Output
+        shell: bash
+        run: |
+          chmod +x ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/scripts/xml_formatting.py
+          python3 ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/scripts/xml_formatting.py
+          
+          
       
