@@ -16,10 +16,16 @@ jobs:
         run: |
           git clone https://github.com/kmhswimgirl/rbe3002_tests.git ${{ github.workspace }}/ros2_ws/src/rbe3002_tests
 
-      - name: turtlebot repo clone
+      - name: turtlebot simulaitons repo clone
         shell: bash
         run: |
           git clone https://github.com/kmhswimgirl/turtlebot3_simulations.git ${{ github.workspace }}/ros2_ws/src/turtlebot3_simulations -b pose-publisher
+
+      
+      - name: turtlebot3 base packages
+        shell: bash
+        run: |
+          git clone https://github.com/ROBOTIS-GIT/turtlebot3.git ${{ github.workspace }}/ros2_ws/src/turtlebot3 -b jazzy
 
       # - name: Clone repo into src directory inside container
       #   shell: bash
@@ -37,20 +43,6 @@ jobs:
           source /opt/ros/jazzy/setup.bash
           cd ${{ github.workspace }}/ros2_ws
           colcon build --symlink-install --packages-ignore rbe3002_interfaces
-
-      - name: find test files
-        shell: bash
-        run: |
-          ls -a
-          cd ${{ github.workspace }}
-          ls -a
-          cd ros2_ws
-          ls -a
-          cd src
-          ls -a
-          cd rbe3002_tests
-          ls -a
-
 
       - name: Run lab2 individual tests
         shell: bash
