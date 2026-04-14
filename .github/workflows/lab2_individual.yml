@@ -36,6 +36,16 @@ jobs:
           source /opt/ros/jazzy/setup.bash
           cd ${{ github.workspace }}/ros2_ws
           colcon build --symlink-install --packages-ignore rbe3002_interfaces
+          
+      - name: find test files
+        shell: bash
+        run: |
+          ls -a
+          cd ${{ github.workspace }}
+          ls -a
+          cd ros2_ws
+          ls -a
+
 
       - name: Run lab2 individual tests
         shell: bash
