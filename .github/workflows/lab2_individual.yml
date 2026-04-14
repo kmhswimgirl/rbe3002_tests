@@ -55,4 +55,4 @@ jobs:
           source /opt/ros/jazzy/setup.bash
           export TURTLEBOT3_MODEL=burger
           source ${{ github.workspace }}/ros2_ws/install/setup.bash
-          pytest ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -vv -s 
+          pytest ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/test/lab2 -vv -s 
