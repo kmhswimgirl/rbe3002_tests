@@ -1,6 +1,9 @@
 name: Lab2 CI
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -42,7 +45,7 @@ jobs:
         run: |
           source /opt/ros/jazzy/setup.bash
           cd ${{ github.workspace }}/ros2_ws
-          colcon build --symlink-install --packages-ignore rbe3002_interfaces
+          colcon build --symlink-install --packages-ignore rbe3002_interfaces turtlebot3_node
 
       - name: Run lab2 individual tests
         shell: bash
