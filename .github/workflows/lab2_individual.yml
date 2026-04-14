@@ -13,15 +13,21 @@ jobs:
       - name: Checkout repo to ros2_ws
         uses: actions/checkout@v4
         with:
-          path: ros2_ws/src
+          path: ros2_ws/src/rbe3002_tests
       - name: turtlebot repo clone
         shell: bash
         run: |
-          git clone https://github.com/kmhswimgirl/turtlebot3_simulations.git /ros2_ws/src -b pose-publisher
-      - name: Clone repo into src directory inside container
+          git clone https://github.com/kmhswimgirl/turtlebot3_simulations.git ${{ github.workspace }}/ros2_ws/src/turtlebot3_simulations -b pose-publisher
+
+      # - name: Clone repo into src directory inside container
+      #   shell: bash
+      #   run: |
+      #     git clone https://x-access-token:${{ secrets.RBE3002_ros2_KEY }}@github.com/kmhswimgirl/RBE3002_ros2.git ${{ github.workspace }}/ros2_ws/src/RBE3002_ros2 -b 32-clean-up
+
+      - name: 3002 repo clone
         shell: bash
         run: |
-          git clone https://x-access-token:${{ secrets.RBE3002_ros2_KEY }}@github.com/kmhswimgirl/RBE3002_ros2.git ${{ github.workspace }}/ros2_ws/src -b 32-clean-up
+          git clone https://github.com/kmhswimgirl/RBE3002_ros2.git ${{ github.workspace }}/ros2_ws/src/RBE3002_ros2 -b 32-clean-up
 
       - name: Build ROS workspace
         shell: bash
@@ -33,4 +39,6 @@ jobs:
       - name: Run lab2 individual tests
         shell: bash
         run: |
+          source /opt/ros/jazzy/setup.bash
+          source ${{ github.workspace }}/ros2_ws/install/setup.bash
           pytest ${{github.workspace}}/ros2_ws/src/rbe3002_tests/test/lab2/test_drive.py -v 
