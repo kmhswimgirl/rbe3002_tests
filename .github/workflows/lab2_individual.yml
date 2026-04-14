@@ -13,6 +13,8 @@ jobs:
       image: kmhswimgirl/rbe3002-autograder:test
 
     steps:
+      - name: Install killall cmd line tool
+        run: sudo apt-get update && sudo apt-get install -y psmisc # later willgo in docker container image
 
       - name: TESTS!!!!
         shell: bash
