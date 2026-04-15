@@ -1,23 +1,21 @@
-# makes a dictionary using student ID vs answer to the GH username quiz on canvas
 from canvasapi import Canvas
 import yaml
 import os
-import json
 import argparse
-import requests
-from io import StringIO
-import csv
-from dataclasses import dataclass
-import xml.etree.ElementTree as ET
+import re
+
+# my classes
+from student import StudentLookup, Student
+from xml_parsing import XMLScoring
 
 parser = argparse.ArgumentParser(description='Rips GitHub usernames off of a Canvas quiz using the Canvas LMS API')
-parser.add_argument('-n', '--name', help='GitHub user who triggered the action')
+# parser.add_argument('-n', '--name', help='GitHub user who triggered the action')
 parser.add_argument('-o', '--config', help='Autograder configuration file path', default='config/config.yaml')
-parser.add_argument('-r', '--results', help='ROS launch_pytest results.xml file path', default='results.xml')
-parser.add_argument('-l', '--lab', choices=['lab2-ind', 'lab2-grp', 'lab3-ind', 'lab3-grp', 'lab4-ind', 'lab4-grp'], 
-                    default='lab2-ind', help='Lab assignment')
-parser.add_argument('-d', '--debug', action='store_true', help='run the debug functions')
-parser.add_argument('-a', '--api', help="passing in a canvas api key secret")
+# parser.add_argument('-r', '--results', help='ROS launch_pytest results.xml file path', default='results.xml')
+# parser.add_argument('-l', '--lab', choices=['lab2-ind', 'lab2-grp', 'lab3-ind', 'lab3-grp', 'lab4-ind', 'lab4-grp'], 
+#                     default='lab2-ind', help='Lab assignment')
+# parser.add_argument('-d', '--debug', action='store_true', help='run the debug functions')
+# parser.add_argument('-a', '--api', help="passing in a canvas api key secret")
 args = parser.parse_args()
 
 # load yaml config file
@@ -26,100 +24,90 @@ with open(args.config, 'r') as file:
 
 # general setup
 API_URL = info['canvas']['instance_url']
-API_KEY = args.api
+API_KEY = os.getenv("CANVAS_API")
 COURSE_ID = info['rbe_3002']['course_id']
 QUIZ_ID = info['rbe_3002']['gh_user_quiz']
+GH_ACTOR = "AdamBuier"
 
 canvas = Canvas(API_URL, API_KEY)
 course = canvas.get_course(COURSE_ID)
 quiz = course.get_quiz(QUIZ_ID)
 
-@dataclass
-class Student:
-    name: str
-    gh_username: str
-    canvas_id: int
-    team: int  
+lookup = StudentLookup(course, quiz)
+student = lookup.gh_username_to_student(GH_ACTOR)
 
-class Student:
-    def __init__(self):
-        self.debug = args.debug
-        self.test_results = args.results
-        self.course = course
+# team = student.get_team()
+# team_members = student.get_group_members()
 
-    def gh_username_to_canvas_id(self, gh_username: str, course, quiz_id: int) -> Student:
-        '''
-        Rip the GH usernames of students from canvas and determine who is running the script.
-        Also determine what group they are in if it is a group assignment.
-        '''
+# print(student.name)
+# print(student.canvas_id)
+# print(team.name)
+# print(team.id)
 
-        quiz = course.get_quiz(quiz_id)
-        reports = quiz.get_all_quiz_reports()
-        csv_data = None
+# print(f"Total members: {len(list(team_members))}")
 
-        # get the right type of report
-        for report in reports:
-            if report.report_type == 'student_analysis':
-                if hasattr(report, 'file') and report.file:
-                    csv_url = report.file['url']
-                    response = requests.get(csv_url)
-                    csv_data = response.text
-                    print(f"Retrieved Username Data")
-                break
+# for member in team_members:
+#     print(member.name)
 
-        # read csv data and search for the username
-        if csv_data:
-            csv_reader = csv.reader(StringIO(csv_data))
-            next(csv_reader, None)  # Skip headers
-            self.csv_data = csv_data
-            
-            for row in csv_reader:
-                if len(row) >= 6 and row[5] == gh_username:
-                    student = Student()
-                    student.gh_username = gh_username
-                    student.canvas_id = int(row[1])
-                    student.name = row[0]
-        return student
+'''
+workflow:
+---------
+    - figure out quiz id
+    - get student using gh username canvas quiz id
+    - get lab assignment ids and points possible based on arg passed in
+    - calc new score + compare to current score
+        - generate list of score updates
+        - post list of new scores to canvas
+'''
 
-    def get_team(self, student_id: int):
-        '''return the team the student is on'''
+example_results = { # example XML output from lab2 
+    'test_send_speed': 1, 
+    'test_drive': 1, 
+    'test_go_to': 1, 
+    'test_correct_nodes_active': 1, 
+    'test_turtlebot_topics': 1, 
+    'test_path_generator_init': 1, 
+    'test_convert_to_nav_msg': 1, 
+    'test_generate_path_publishes': 1, 
+    'test_rotate_case_1': 1, 
+    'test_rotate_case_2': 1, 
+    'test_controller_init': 1, 
+    'test_update_odometry': 1
+}
 
-        groups = course.get_groups()
-            
-        for group in groups:
-            users = group.get_users()
-            for user in users:
-                if user.id == student_id:
-                    return group
-        
-        return None 
+def find_username_quiz(course):
+    '''
+    Find the GitHub username quiz by matching common keywords
+    '''
+    keywords = ['gh', 'github', 'username']
+    pattern = '|'.join(keywords)  # Creates: 'gh|github|username'
+    
+    quizzes = course.get_quizzes()
+    for quiz in quizzes:
+        if re.search(pattern, quiz.title, re.IGNORECASE):
+            return quiz
+    return None
 
-    def get_group_members(self, student_id: int, course):
-        '''Get all members of the student's group'''
-
-        group = self.get_student_group(student_id, self.course)
-        
-        if group:
-            return group.get_users()
-        
-        return None
-
-    def parse_test_results(self, xml_file):
-        """Parse test results XML"""
-        tree = ET.parse(xml_file)
-        results = []
-        
-        for testcase in tree.getroot().findall('.//testcase'):
-            test_info = {
-                'name': testcase.get('name'),
-                'classname': testcase.get('classname'),
-                'status': 0 if testcase.find('failure') is None else 1,
-                'time': float(testcase.get('time', 0))
-            }
-            results.append(test_info)
-        
-        return results
-
-   
+def test_results_to_score(lab, test_results, student: Student):
+    '''intake xml test results and lab name and output score based on sign off'''
 
 
+    pass
+
+quiz_function = find_username_quiz(course)
+print(quiz_function.id)
+print(QUIZ_ID)
+
+# assignment_grps = course.get_assignment_groups()
+# for group in assignment_grps:
+#     if "Lab" in group.name:
+#         print(f"Group: {group.name}")
+#         print(f"ID: {group.id}")
+#         assignments = course.get_assignments_for_group(group)
+#         for assignment in assignments:
+#             print(f'\t {assignment.name}')
+#             print(f'\t {assignment.id}')
+
+# assignment_id = 466293
+# grade = student.get_grade(assignment_id)
+# print(grade) 

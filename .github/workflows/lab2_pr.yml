@@ -1,0 +1,36 @@
+name: Lab2 PR Sign Off
+
+on:
+  pull_request_review_comment:
+    types: [created, deleted]
+jobs:
+  specific_review_requested:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.title == 'lab2 group pr'}}
+    steps:
+      - name: Get Commenters
+        uses: actions/github-script@v7
+        with:
+            script: |
+                const prNumber = context.payload.pull_reques    t.number;
+
+                // Paginate through both general issue comments and review comments
+                const issueComments = await github.paginate(github.rest.issues.listComments, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                });
+
+                const reviewComments = await github.paginate(github.rest.pulls.listReviewComments, {
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: prNumber,
+                });
+
+                // Combine and filter for unique usernames
+                const allCommenters = [...new Set([
+                    ...issueComments.map(c => c.user.login),
+                    ...reviewComments.map(c => c.user.login)
+                ])];
+
+                console.log(`Unique commenters: ${allCommenters.join(', ')}`);

@@ -86,3 +86,27 @@ class TestNodeBringup: # check that basic things work such as correct nodes bein
         assert 'nav_msgs/msg/Odometry' in topic_dict.get('/odom', [])
         assert 'sensor_msgs/msg/LaserScan' in topic_dict.get('/scan',[])
         assert 'sensor_msgs/msg/Imu' in topic_dict.get('/imu',[])
+    
+class TestSendSpeed: # try basic commands such as publishing to /cmd_vel
+    @pytest.mark.launch(fixture=generate_test_description)
+    def test_send_speed(self, rclpy_init):
+        received = threading.Event()
+        node = Controller(0,0,0)
+
+        def callback(msg: TwistStamped):
+            print(f"linear speed: {msg.twist.linear}")
+            print(f"angular speed: {msg.twist.angular}")
+            assert msg.twist.linear.x is not None or 0, "nothing published to topic"      
+            assert isinstance(msg, TwistStamped), "message type is incorrect"
+            received.set()
+
+        sub = rclpy_init.create_subscription(TwistStamped, '/cmd_vel', callback, 10)
+        node.send_speed(0.1, 0.4)
+
+        for _ in range(10):
+            rclpy.spin_once(rclpy_init, timeout_sec=0.1)
+            if received.is_set():
+                break
+
+        assert received.is_set(), "No message received on /cmd_vel"
+        rclpy_init.destroy_subscription(sub)
