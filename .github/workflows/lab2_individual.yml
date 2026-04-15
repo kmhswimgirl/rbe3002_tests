@@ -13,24 +13,18 @@ jobs:
       image: kmhswimgirl/rbe3002-autograder:latest
 
     steps:
-      - name: Checkout this repository
-        uses: actions/checkout@v4
-
-      # - name: Clone test repository
-      #   shell: bash
-      #   run: |
-      #     git clone https://github.com/kmhswimgirl/rbe3002_tests.git ${{ github.workspace }}/ros2_ws/src/rbe3002_tests
-
+      - name: Clone test repository
+        shell: bash
+        run: |
+          git clone https://github.com/kmhswimgirl/rbe3002_tests.git ${{ github.workspace }}/ros2_ws/src/rbe3002_tests
       - name: Clone TurtleBot3 simulations fork
         shell: bash
         run: |
           git clone https://github.com/kmhswimgirl/turtlebot3_simulations.git ${{ github.workspace }}/ros2_ws/src/turtlebot3_simulations -b pose-publisher
-
       - name: TurtleBot3 base packages
         shell: bash
         run: |
           git clone https://github.com/ROBOTIS-GIT/turtlebot3.git ${{ github.workspace }}/ros2_ws/src/turtlebot3 -b jazzy
-
       # - name: Clone repo into src directory inside container
       #   shell: bash
       #   run: |
@@ -40,28 +34,25 @@ jobs:
         shell: bash
         run: |
           git clone https://github.com/kmhswimgirl/RBE3002_ros2.git ${{ github.workspace }}/ros2_ws/src/RBE3002_ros2 -b 32-clean-up
-
       - name: Build ROS workspace
         shell: bash
         run: |
           source /opt/ros/jazzy/setup.bash
           cd ${{ github.workspace }}/ros2_ws
           colcon build --symlink-install --packages-ignore rbe3002_interfaces turtlebot3_node
-
       - name: Run lab2 individual tests
         shell: bash
         run: | # minimal logging
           source /opt/ros/jazzy/setup.bash
           export TURTLEBOT3_MODEL=burger
           source ${{ github.workspace }}/ros2_ws/install/setup.bash 
-          pytest --junitxml=results.xml ${{ github.workspace }}/test/lab2 -v  
+          pytest --junitxml=results.xml ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/test/lab2 -v  
           cat results.xml
           
       - name: Format & Parse XML Output
         shell: bash
         run: |
-          chmod +x ${{ github.workspace }}/scripts/xml_formatting.py
-          python3 ${{ github.workspace }}/scripts/xml_formatting.py
+          chmod +x ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/scripts/xml_formatting.py
+          python3 ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/scripts/xml_formatting.py
           
           
-      
