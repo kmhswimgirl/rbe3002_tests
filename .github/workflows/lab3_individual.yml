@@ -1,0 +1,23 @@
+name: Lab3 Individual
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: kmhswimgirl/rbe3002-autograder:latest
+
+    steps:
+      # - name: Clone test repository
+      #   shell: bash
+      #   run: |
+      #     git clone https://github.com/kmhswimgirl/rbe3002_tests.git ${{ github.workspace }}/ros2_ws/src/rbe3002_tests
+
+        # this puts it in the GH workspace
+      - name: Checkout this repository
+        uses: actions/checkout@v4

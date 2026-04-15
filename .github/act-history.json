@@ -1,5 +1,11 @@
 [
   {
+    "workflow": "Dry run",
+    "command": "act -n",
+    "success": true,
+    "timestamp": "2026-04-15T06:42:39.766Z"
+  },
+  {
     "workflow": "lab2_individual.yml",
     "command": "act workflow_dispatch -W .github/workflows/lab2_individual.yml",
     "success": true,

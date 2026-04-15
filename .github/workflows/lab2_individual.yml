@@ -1,4 +1,4 @@
-name: Lab2 CI
+name: Lab2 Individual
 
 on:
   push:
@@ -13,10 +13,9 @@ jobs:
       image: kmhswimgirl/rbe3002-autograder:latest
 
     steps:
-      - name: Clone test repository
-        shell: bash
-        run: |
-          git clone https://github.com/kmhswimgirl/rbe3002_tests.git ${{ github.workspace }}/ros2_ws/src/rbe3002_tests
+        # this puts it in the GH workspace
+      - name: Checkout this repository
+        uses: actions/checkout@v4
 
       - name: Clone TurtleBot3 simulations fork
         shell: bash
@@ -51,14 +50,11 @@ jobs:
           source /opt/ros/jazzy/setup.bash
           export TURTLEBOT3_MODEL=burger
           source ${{ github.workspace }}/ros2_ws/install/setup.bash 
-          pytest --junitxml=results.xml ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/test/lab2 -v  
+          pytest --junitxml=results.xml ${{ github.workspace }}/test/lab2 -v  
           cat results.xml
           
       - name: Format & Parse XML Output
         shell: bash
         run: |
-          chmod +x ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/scripts/xml_formatting.py
-          python3 ${{ github.workspace }}/ros2_ws/src/rbe3002_tests/scripts/xml_formatting.py
-          
-          
-      
+          chmod +x ${{ github.workspace }}/scripts/xml_formatting.py
+          python3 ${{ github.workspace }}/scripts/xml_formatting.py
