@@ -59,3 +59,5 @@ CATKIN_IGNORE
 .venv/*
 results/
 
+scripts/fun_with_the_api.py
+
