@@ -13,10 +13,13 @@ jobs:
       image: kmhswimgirl/rbe3002-autograder:latest
 
     steps:
-      - name: Clone test repository
-        shell: bash
-        run: |
-          git clone https://github.com/kmhswimgirl/rbe3002_tests.git ${{ github.workspace }}/ros2_ws/src/rbe3002_tests
+      - name: Checkout this repository
+        uses: actions/checkout@v4
+
+      # - name: Clone test repository
+      #   shell: bash
+      #   run: |
+      #     git clone https://github.com/kmhswimgirl/rbe3002_tests.git ${{ github.workspace }}/ros2_ws/src/rbe3002_tests
 
       - name: Clone TurtleBot3 simulations fork
         shell: bash

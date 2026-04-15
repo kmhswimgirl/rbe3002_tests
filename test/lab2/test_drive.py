@@ -130,6 +130,7 @@ class TestGoTo():
 
         dist = math.hypot(end_pos[0] - start_pos[0], end_pos[1] - start_pos[1])
         print(f"Start: {start_pos}, End: {end_pos}, Distance moved: {dist:.2f}")
+        dist = round(dist, 2)
 
         assert 2.03 > dist > 1.95, f"Incorrect drive distance {dist:.2f}m"
 
