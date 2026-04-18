@@ -1,4 +1,4 @@
-name: Lab2 CI
+name: Lab2 Individual CI
 
 on:
   push:
@@ -17,29 +17,33 @@ jobs:
         shell: bash
         run: |
           git clone https://github.com/kmhswimgirl/rbe3002_tests.git ${{ github.workspace }}/ros2_ws/src/rbe3002_tests
+          
       - name: Clone TurtleBot3 simulations fork
         shell: bash
         run: |
           git clone https://github.com/kmhswimgirl/turtlebot3_simulations.git ${{ github.workspace }}/ros2_ws/src/turtlebot3_simulations -b pose-publisher
+          
       - name: TurtleBot3 base packages
         shell: bash
         run: |
           git clone https://github.com/ROBOTIS-GIT/turtlebot3.git ${{ github.workspace }}/ros2_ws/src/turtlebot3 -b jazzy
-      # - name: Clone repo into src directory inside container
-      #   shell: bash
-      #   run: |
-      #     git clone https://x-access-token:${{ secrets.RBE3002_ros2_KEY }}@github.com/kmhswimgirl/RBE3002_ros2.git ${{ github.workspace }}/ros2_ws/src/RBE3002_ros2 -b 32-clean-up
-
-      - name: Clone repo with 3002 code
+          
+      - name: Clone repo into src directory inside container
         shell: bash
         run: |
-          git clone https://github.com/kmhswimgirl/RBE3002_ros2.git ${{ github.workspace }}/ros2_ws/src/RBE3002_ros2 -b 32-clean-up
+          git clone https://x-access-token:${{ secrets.RBE3002_ros2_KEY }}@github.com/kmhswimgirl/RBE3002_ros2.git ${{ github.workspace }}/ros2_ws/src/RBE3002_ros2 -b 32-clean-up
+
+      # - name: Clone repo with 3002 code
+      #   shell: bash
+      #   run: |
+      #     git clone https://github.com/kmhswimgirl/RBE3002_ros2.git ${{ github.workspace }}/ros2_ws/src/RBE3002_ros2 -b 32-clean-up
       - name: Build ROS workspace
         shell: bash
         run: |
           source /opt/ros/jazzy/setup.bash
           cd ${{ github.workspace }}/ros2_ws
           colcon build --symlink-install --packages-ignore rbe3002_interfaces turtlebot3_node
+          
       - name: Run lab2 individual tests
         shell: bash
         run: | # minimal logging
