@@ -1,6 +1,10 @@
 [run]
 omit =
+    **/__init__.py
     */site-packages/*
     */dist-packages/*
     */control/src/control/action_controller.py
-    */control/src/control/__init__.py
+    */pathing/src/pathing/path_planner.py
+    */pathing/src/pathing/priority_queue.py
+
+
