@@ -9,13 +9,15 @@ from pathing.numpy_lab3 import PathPlanner
 @pytest.fixture(scope="session", autouse=True)
 def rclpy_init():
     '''init ROS python client library'''
-    rclpy.init()
+    if not rclpy.ok():
+        rclpy.init()
     global planner
     planner = PathPlanner()
     planner.map = numpy_map
     planner.mapinfo = map_meta
     yield
-    rclpy.shutdown()
+    if rclpy.ok():
+        rclpy.shutdown()
 
 @pytest.mark.parametrize("grid_coord, world_coord", world_grid)
 def test_grid_to_world(grid_coord, world_coord):

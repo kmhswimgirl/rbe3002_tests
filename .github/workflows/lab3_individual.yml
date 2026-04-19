@@ -42,7 +42,7 @@ jobs:
           cd ${{ github.workspace }}/ros2_ws
           colcon build --symlink-install --packages-ignore rbe3002_interfaces turtlebot3_node
 
-      - name: Run lab2 individual tests
+      - name: Run lab3 individual tests
         shell: bash
         run: | # minimal logging
           source /opt/ros/jazzy/setup.bash

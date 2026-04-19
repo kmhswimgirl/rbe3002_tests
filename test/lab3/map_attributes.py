@@ -2,6 +2,9 @@ from nav_msgs.msg import OccupancyGrid, MapMetaData
 from geometry_msgs.msg import Pose, Point, Quaternion, PoseStamped
 from nav_msgs.msg import Path
 import numpy as np
+from numpy import typing as npt
+from typing import Tuple, List
+from pathing.numpy_lab3 import PathPlanner as planner
 
 # general map for testing on without using the map server
 map = OccupancyGrid()
@@ -50,7 +53,7 @@ map_meta = MapMetaData()
 map_meta = map.info
 
 # numpy map for those functions that need it 
-def occupancy_grid_to_numpy(occupancy_grid: OccupancyGrid) -> np.ndarray:
+def occupancy_grid_to_numpy(occupancy_grid: OccupancyGrid) -> npt.NDArray:
     width = occupancy_grid.info.width
     height = occupancy_grid.info.height
     data = np.array(occupancy_grid.data, dtype=np.int8)
@@ -90,8 +93,8 @@ n_4 = [
     ((19, 14), [(19, 15), (19, 13), (20, 14), (18, 14)]), 
     ((2, 2), [(2, 3), (2, 1), (3, 2), (1, 2)])
 ]
-# neighbors of eight test points
 
+# neighbors of eight test points
 n_8 = [ 
     ((1, 1), [(2, 2), (1, 2), (2, 1)]), 
     ((5, 5), [(6, 6), (4, 4), (6, 4), (4, 6), (5, 6), (5, 4), (6, 5), (4, 5)]), 
@@ -102,7 +105,7 @@ n_8 = [
     ((2, 2), [(3, 3), (1, 1), (3, 1), (1, 3), (2, 3), (2, 1), (3, 2), (1, 2)])
 ]
 
-# build_path_message
+# build path message test paths
 init_path = [
     (2, 2), (3, 2), (4, 2), (5, 2), (5, 3), (6, 3), (7, 3), (8, 4), (8, 5), (8, 6), (9, 6), (10, 6), 
     (11, 6), (12, 7), (12, 8), (12, 9), (13, 10), (14, 10), (15, 11), (15, 12), (16, 13), (17, 14), 
@@ -127,3 +130,30 @@ test_expected_poses = [
 ]
 
 path_test_case = [(init_path, test_expected_poses)]
+
+# for optimized path (test_lab3_ec.py)
+colinear_path = [
+    (2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2), (8, 2),
+    (8, 3), (8, 4), (8, 5), (8, 6), (8, 7), (8, 8),
+    (9, 9), (10, 10), (11, 11), (12, 12), (13, 13), (14, 14),
+    (15, 14), (16, 14), (17, 14), (18, 14), (19, 14),
+    (19, 15), (19, 16), (19, 17), (19, 18),
+]
+
+reduced_path = [(2, 2), (8, 2), (8, 8), (14, 14), (19, 14), (19, 18)]
+
+opti_path = [(colinear_path, reduced_path)]
+
+# for obstacle expansion (square)
+
+# arr_1 = planner.obstacle_expansion(numpy_map, 1)
+# arr_2 = planner.obstacle_expansion(numpy_map, 2)
+
+# np.save('test/lab3/map_files/expanded_map.npy', arr_1)
+# np.save('test/lab3/map_files/expanded_map_p2.npy', arr_2)
+
+exp_map_1 = np.load('test/lab3/map_files/expanded_map.npy')
+exp_map_2 = np.load('test/lab3/map_files/expanded_map_p2.npy')
+
+expansion_1_sq = [(numpy_map, exp_map_1)]
+expansion_2_sq = [(numpy_map, exp_map_2)]
