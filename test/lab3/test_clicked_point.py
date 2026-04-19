@@ -3,7 +3,7 @@ import rclpy
 from nav_msgs.msg import MapMetaData
 from geometry_msgs.msg import Point
 from nav_msgs.msg import Path
-from map_attributes import map_meta, numpy_map, path_test_case, world_grid, n_4, n_8, e_dist
+from map_attributes import map_meta, numpy_map
 from pathing.numpy_lab3 import PathPlanner
 
 @pytest.fixture(scope="session", autouse=True)
@@ -20,3 +20,6 @@ def rclpy_init():
         rclpy.shutdown()
 
 
+def test_clicked_point_callback():
+    
+    pass

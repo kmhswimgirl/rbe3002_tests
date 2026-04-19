@@ -52,15 +52,7 @@ map.data = [cell for row in map_rows for cell in row]
 map_meta = MapMetaData()
 map_meta = map.info
 
-# numpy map for those functions that need it 
-def occupancy_grid_to_numpy(occupancy_grid: OccupancyGrid) -> npt.NDArray:
-    width = occupancy_grid.info.width
-    height = occupancy_grid.info.height
-    data = np.array(occupancy_grid.data, dtype=np.int8)
-    grid_2d = data.reshape((height, width))
-    return grid_2d
-
-numpy_map = occupancy_grid_to_numpy(map)
+numpy_map = np.load('test/lab3/map_files/original_ndarray.npy')
 
 # world to grid and grid to world:
 world_grid = [
