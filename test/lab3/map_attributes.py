@@ -4,7 +4,9 @@ from nav_msgs.msg import Path
 import numpy as np
 from numpy import typing as npt
 from typing import Tuple, List
-from pathing.numpy_lab3 import PathPlanner as planner
+from pathing.numpy_lab3 import PathPlanner
+from pathing.priority_queue import PriorityQueue
+import rclpy
 
 # general map for testing on without using the map server
 map = OccupancyGrid()
@@ -51,7 +53,6 @@ map.data = [cell for row in map_rows for cell in row]
 # replacement for self.mapinfo
 map_meta = MapMetaData()
 map_meta = map.info
-
 numpy_map = np.load('test/lab3/map_files/original_ndarray.npy')
 
 # world to grid and grid to world:
@@ -149,3 +150,91 @@ exp_map_2 = np.load('test/lab3/map_files/expanded_map_p2.npy')
 
 expansion_1_sq = [(numpy_map, exp_map_1)]
 expansion_2_sq = [(numpy_map, exp_map_2)]
+
+# path = planner_instance.a_star((10, 10), (0, 0))
+# print(path)
+
+'''
+def a_star(mapdata: OccupancyGrid, start: Tuple[int, int], goal: Tuple[int, int]) -> List[Tuple[int, int]]:
+        ### REQUIRED CREDIT
+        # self.loginfo("Executing A* from (%d,%d) to (%d,%d)" % (start[0], start[1], goal[0], goal[1]))
+
+        frontier = PriorityQueue()
+        frontier.put(start, 0)  # Use (element, priority) for your custom PriorityQueue
+        came_from = {}
+        cost_so_far = {}
+        came_from[start] = None
+        cost_so_far[start] = 0
+        visited = []
+        path = [] # Store the optimal path to get from start to goal
+
+        # Run while there are still points in the frontier
+        while not frontier.empty():
+            current = frontier.get()
+            if current == goal:
+                break
+            # Get all of the neighbors of 8 and check if they should be added
+            for next in planner_instance.neighbors_of_8(current):
+                new_cost = cost_so_far[current] + (abs(current[0] - next[0]) + abs(current[1] - next[1])) # Calculate the Manhattan distance to get from current point to next point and add it to cost
+                if next not in cost_so_far or new_cost < cost_so_far[next]:
+                    cost_so_far[next] = new_cost
+                    priority = new_cost + PathPlanner.euclidean_distance(next, goal) # Use Euclidean distance function from the current point to the new point for the heuristic
+                    frontier.put(next, priority) # Put the next point in the frontier
+                    came_from[next] = current
+                    # frontierCells.cells.append(PathPlanner.grid_to_world(mapdata, next))
+            
+            # Also store which cell each one came from
+            visited.append(current) # Add cell to the visited list
+            # visitedCells.cells.append(PathPlanner.grid_to_world(mapdata, current)) # Add world coordinate version of cell to be shown in Rviz
+
+        # If the goal was not actually reached, return empty path
+        if goal not in came_from:
+            return []
+
+        path = []
+        current = goal
+
+        # Make the path based off the current point and where it came from (create list of points backwards)
+        while current is not None:
+            path.append(current)
+            if current == start:
+                break
+            current = came_from.get(current)
+
+        path.reverse() # Cells were put in backwards so reverse list
+
+        # Publish the expanded cells to be visualized in Rviz
+        # self.expanded_cells.publish(visitedCells)
+
+        return path # Return the robot's path, in grid coordinates
+
+
+rclpy.init() 
+planner_instance = PathPlanner()
+planner_instance.map = exp_map_1
+planner_instance.mapinfo = map_meta
+
+start = (10, 10)
+goal = (4, 4)
+
+print("Start cell value:", exp_map_1[start[0], start[1]])
+print("Goal cell value:", exp_map_1[goal[0], goal[1]])
+
+path = a_star(exp_map_1, (start[1], start[0]), (goal[0], goal[1]))
+
+path_l = len(path)
+if path_l <= 10:
+    tol = 1
+if 11 < path_l <= 20:
+    tol = 3
+else: tol = 5
+
+print("Path:")
+print(path)
+print("----------test case----------")
+print(f"({start}, {goal}, {path_l}, {tol})")
+'''
+# start, goal, expected length, tolerance
+a_star_tests = [((10, 10), (4, 4), 9, 5),
+                (),
+                ]
